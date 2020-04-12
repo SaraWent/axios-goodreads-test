@@ -1,26 +1,52 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Axios from 'axios';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const convert = require("xml-js");
+
+const apiKey = process.env.REACT_APP_API_KEY;
+
+
+
+class App extends React.Component {
+
+  state = {
+    books: []
+  };
+
+
+  componentDidMount() {
+    //ping our api endpoint
+    //update state
+    const searchText = "9781250118004";
+    const requestUri =
+      `https://cors-anywhere.herokuapp.com/` +
+      `https://www.goodreads.com/book/isbn/${searchText}?key=${apiKey}`;
+
+    Axios.get(requestUri)
+      .then((res) => {
+        const data = JSON.parse(
+          convert.xml2json(res.data, { compact: true, spaces: 2 })
+        );
+        console.log(data);
+        this.setState({
+          books: data.GoodreadsResponse.book
+        });
+      }, (error) => {
+        console.log(error);
+      });
+  };
+
+
+
+  render() {
+    //update ui with data
+    return (
+      <div className="App" >
+        <h1>My Book!</h1>
+      </div>
+    );
+  }
 }
+
 
 export default App;
